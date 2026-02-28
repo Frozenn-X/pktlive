@@ -1,0 +1,47 @@
+<aside class="ni-legend" id="data-sources-legend" aria-label="Data sources and interpretation">
+  <details class="ni-legend-details">
+    <summary class="ni-legend-summary">
+      <span class="ni-legend-title">About the views · À propos des vues</span>
+    </summary>
+    <div class="ni-legend-grid">
+      <div class="ni-legend-block">
+        <h4 class="ni-legend-lang">English</h4>
+        <div class="ni-legend-section">
+          <strong>Live</strong>
+          <p><em>Purpose:</em> Inspect the latest packets seen by the capture in near real time. <em>Data:</em> <code>_live.json</code> (refreshed ~300 ms by the agent; table polls every 0.5 s). <em>Interpretation:</em> Newest at top by default; use filters (IP, port, protocol, subnet) to focus. High volume on a single IP/port may indicate a service or an anomaly.</p>
+        </div>
+        <div class="ni-legend-section">
+          <strong>Stats</strong>
+          <p><em>Purpose:</em> Summaries and time-window trends. <em>Data:</em> <code>_live.json</code> (protocols, top IPs, subnets, services, 5/10/30/60 min windows). <em>Interpretation:</em> Compare protocol distribution and bytes across windows to spot shifts; top IPs/subnets show who talks most.</p>
+        </div>
+        <div class="ni-legend-section">
+          <strong>Ports</strong>
+          <p><em>Purpose:</em> Traffic per destination port and protocol. <em>Data:</em> <code>_live.json</code> (port_stats). <em>Interpretation:</em> Sort by packets or bytes to see dominant services; well-known ports (80, 443, etc.) are labeled.</p>
+        </div>
+        <div class="ni-legend-section">
+          <strong>Pipeline / Metrics</strong>
+          <p><em>Purpose:</em> Health of capture and processing. <em>Data:</em> <code>_live.json</code> (capture_health), <code>_metrics_capture.json</code>, <code>_metrics.json</code>. <em>Interpretation:</em> Drop rate &lt; 0.5% is green; rising queue or drops mean the sink cannot keep up—reduce load or tune flush intervals.</p>
+        </div>
+      </div>
+      <div class="ni-legend-block">
+        <h4 class="ni-legend-lang">Français</h4>
+        <div class="ni-legend-section">
+          <strong>Live</strong>
+          <p><em>But :</em> Voir les derniers paquets capturés en quasi temps réel. <em>Données :</em> <code>_live.json</code> (mis à jour ~300 ms par l’agent ; le tableau se rafraîchit toutes les 0,5 s). <em>Interprétation :</em> Les plus récents en haut ; utilisez les filtres (IP, port, protocole, subnet) pour cibler. Un volume élevé sur une IP/port peut indiquer un service ou une anomalie.</p>
+        </div>
+        <div class="ni-legend-section">
+          <strong>Stats</strong>
+          <p><em>But :</em> Résumés et tendances par fenêtre. <em>Données :</em> <code>_live.json</code> (protocoles, IPs et sous-réseaux principaux, services, fenêtres 5/10/30/60 min). <em>Interprétation :</em> Comparez la répartition et le volume entre fenêtres pour détecter des changements ; les top IPs/subnets montrent qui communique le plus.</p>
+        </div>
+        <div class="ni-legend-section">
+          <strong>Ports</strong>
+          <p><em>But :</em> Trafic par port destination et protocole. <em>Données :</em> <code>_live.json</code> (port_stats). <em>Interprétation :</em> Triez par paquets ou octets pour voir les services dominants ; les ports bien connus (80, 443, etc.) sont nommés.</p>
+        </div>
+        <div class="ni-legend-section">
+          <strong>Pipeline / Métriques</strong>
+          <p><em>But :</em> Santé de la capture et du traitement. <em>Données :</em> <code>_live.json</code> (capture_health), <code>_metrics_capture.json</code>, <code>_metrics.json</code>. <em>Interprétation :</em> Taux de perte &lt; 0,5 % = vert ; une file ou des pertes qui augmentent signifient que le sink sature—réduire la charge ou ajuster les intervalles de flush.</p>
+        </div>
+      </div>
+    </div>
+  </details>
+</aside>

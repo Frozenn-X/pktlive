@@ -1,0 +1,66 @@
+# ── Python ──
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ── Testing ──
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# ── IDE / Editor ──
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── PyInstaller ──
+*.spec
+build/
+
+# ── Data / Pipeline outputs ──
+bronze/
+gold/
+*.parquet
+*.ndjson
+*.tmp
+_live.json
+
+# ── Logs ──
+*.log
+debug*.log
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Env / Secrets ──
+.env
+.env.local
+*.pem
+docs/*
+_metrics.json
+_metrics_capture.json

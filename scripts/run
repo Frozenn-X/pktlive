@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+# Launcher (Linux / macOS) — delegates to run.py
+# Usage: ./run [--interval 1] [--no-dashboard] [--verbose]
+# Exit: propagates run.py exit code
+
+set -e
+
+cd "$(dirname "$0")"
+
+# ── Resolve Python ──
+PY="$PWD/.venv/bin/python"
+if [ ! -x "$PY" ]; then
+    if command -v python3 >/dev/null 2>&1; then
+        PY="python3"
+    elif command -v python >/dev/null 2>&1; then
+        PY="python"
+    else
+        echo "[ERROR] No python3 or python found in PATH." >&2
+        echo "        Install Python >= 3.9 or create a venv: python3 -m venv .venv" >&2
+        exit 1
+    fi
+fi
+
+# ── Python version gate ──
+if ! "$PY" -c "import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)" 2>/dev/null; then
+    echo "[ERROR] Python >= 3.9 required. Found: $("$PY" --version 2>&1)" >&2
+    exit 1
+fi
+
+# ── Sudo re-exec if not root (skip with --no-elevate) ──
+needs_sudo=true
+for arg in "$@"; do
+    case "$arg" in --no-elevate) needs_sudo=false ;; esac
+done
+
+if $needs_sudo && [ "$(id -u)" -ne 0 ]; then
+    echo "[*] Elevating with sudo..."
+    exec sudo "$0" "$@"
+fi
+
+# ── Cleanup on signals ──
+cleanup() { echo; echo "[*] Signal received, cleaning up..."; }
+trap cleanup INT TERM
+
+exec "$PY" run.py "$@"
