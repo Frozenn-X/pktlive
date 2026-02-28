@@ -1,4 +1,4 @@
-# Network Analytics Platform
+# Network Analytics Platform / Plateforme d'analyse réseau
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-888?logo=windows&logoColor=white)](https://docs.microsoft.com/windows)
@@ -7,13 +7,56 @@
 [![Pydantic](https://img.shields.io/badge/Pydantic-v2-e74c3c)](https://docs.pydantic.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688)](https://fastapi.tiangolo.com/)
 [![pytest](https://img.shields.io/badge/pytest-8.0%2B-0a9edc)](https://docs.pytest.org/)
+[![license](https://img.shields.io/badge/license-%20%20GNU%20GPLv3%20-green?style=plastic)](https://docs.pytest.org/)
 
-> Real-time network traffic capture and analysis on a single edge node.  
-> Medallion architecture (Bronze / Silver / Gold), sub-second latency, zero JVM dependency.
+
+**EN** — Real-time network traffic capture and analysis on a single edge node. Medallion architecture (Bronze / Silver / Gold), sub-second latency, zero JVM dependency.
+
+**FR** — Capture et analyse du trafic réseau en temps réel sur un nœud edge. Architecture medallion (Bronze / Silver / Gold), latence sub-seconde, aucune dépendance JVM.
 
 ---
 
-## Architecture Overview
+## Platform support / Support des plateformes
+
+| Platform / Plateforme | Status | Notes |
+|------------------------|--------|--------|
+| **Windows**            | ✅ Tested / Testé | Primary development and CI target. Npcap required. |
+| **Linux**              | ❌ Not tested / Non testé | AF_PACKET supported in code; not validated on this project. |
+| **macOS**              | ❌ Not tested / Non testé | Not currently validated. |
+
+> **Disclaimer (EN)** — This project is currently tested and maintained only on **Windows**. Linux and macOS are not part of the current test matrix. Use on those platforms at your own risk; contributions to add CI and validation are welcome.
+>
+> **Avertissement (FR)** — Ce projet est actuellement testé et maintenu uniquement sur **Windows**. Linux et macOS ne font pas partie de la matrice de tests actuelle. L’utilisation sur ces plateformes est à vos risques ; les contributions pour ajouter CI et validation sont les bienvenues.
+
+---
+
+## Test coverage / Couverture des tests
+
+**EN** — Test suite: **104 tests**, total coverage **~55%** (source: `pytest --cov=src` on Windows). Execution **< 2 s**. Coverage is highest on pipeline, storage, and parsing; capture and web entrypoints are partially covered (integration and OS-dependent paths excluded).
+
+**FR** — Suite de tests : **104 tests**, couverture totale **~55 %** (source : `pytest --cov=src` sous Windows). Exécution **< 2 s**. La couverture est la plus élevée sur le pipeline, le stockage et le parsing ; la capture et les points d’entrée web sont partiellement couverts (intégration et chemins dépendants de l’OS exclus).
+
+```bash
+# Run tests with coverage report / Lancer les tests avec rapport de couverture
+python -m pytest tests/ --cov=src --cov-report=term-missing -v
+```
+
+| Module (summary)        | Coverage | Tests |
+|-------------------------|----------|--------|
+| `storage/` (Bronze, Silver, Gold) | ~88–100% | Stores, compaction, retention |
+| `monitoring/` (metrics, logging)  | ~67–80% | Pipeline metrics, structured log |
+| `capture/` (agent, collector)     | ~27–38% | Parser, schema; capture loop not in CI |
+| `web/` (FastAPI app)               | ~74%    | API and routes; web_main excluded |
+
+---
+
+---
+
+## Architecture Overview / Vue d’ensemble de l’architecture
+
+**EN** — Capture layer (NIC → OS backend → ThreadPool + dpkt) feeds a multiprocessing queue; a DataSink process writes Bronze NDJSON, Silver/Gold Parquet, live snapshot and metrics; a TUI dashboard consumes the snapshot.
+
+**FR** — La couche de capture (NIC → backend OS → ThreadPool + dpkt) alimente une file multiprocessing ; un processus DataSink écrit Bronze NDJSON, Silver/Gold Parquet, snapshot live et métriques ; un dashboard TUI consomme le snapshot.
 
 ```mermaid
 flowchart TB
@@ -80,9 +123,11 @@ flowchart LR
 
 ---
 
-## Launch / Run
+## Launch / Run / Lancement
 
-Lancer depuis la **racine du projet** (où se trouvent `run.py`, `src/`, `requirements.txt`). Activer le venv avant toute commande.
+**EN** — Run from the **project root** (where `run.py`, `src/`, `requirements.txt` are). Activate the venv before any command.
+
+**FR** — Lancer depuis la **racine du projet** (où se trouvent `run.py`, `src/`, `requirements.txt`). Activer le venv avant toute commande.
 
 ---
 
@@ -96,6 +141,8 @@ Lancer depuis la **racine du projet** (où se trouvent `run.py`, `src/`, `requir
 | **3. Exécutable .exe** | Lancer le binaire PyInstaller (ex. `networkInterface.exe`) en admin | Même stack que le script ; un seul processus. |
 | **4. Interface web** | `python -m src.network_interface.web.web_main` | **Pour l’UI navigateur** : démarre la capture si `_live.json` absent ou périmé, puis sert l’UI sur `http://127.0.0.1:8000`. |
 | **5. Composants seuls** | `python -m network_interface.capture.capture_agent` (capture seule) ; `python -m network_interface.monitoring.dashboard` (TUI seul, lit `_live.json`) | Pour debug ou déploiement découplé. |
+
+**EN** — Output files are written at **project root**: `_live.json`, `_metrics.json`, `_metrics_capture.json`, `bronze/`, `silver/`, `gold/`. Run as Administrator if using Npcap.
 
 Fichiers produits à la **racine du projet** (répertoire qui contient `run.py` et `src/`) : `_live.json`, `_metrics.json`, `_metrics_capture.json`, dossiers `bronze/`, `silver/`, `gold/`. **`_live.json`** n’est jamais ailleurs : c’est toujours ce dossier (défini par `NI_PROJECT_ROOT` ou par le chemin du projet).
 
@@ -127,12 +174,16 @@ Lancer **toujours depuis la racine** (ex. `python run.py` ou `python -m src.netw
 
 ---
 
-### Tests
+### Running tests / Lancer les tests
 
-Depuis la racine du projet, venv activé :
+**EN** — From project root with venv activated. For coverage: `python -m pytest tests/ --cov=src --cov-report=term-missing -v`.
+
+**FR** — Depuis la racine du projet, venv activé.
 
 ```bash
 python -m pytest tests/ -v
+# With coverage / Avec couverture :
+python -m pytest tests/ --cov=src --cov-report=term-missing -v
 ```
 
 ---
@@ -216,6 +267,18 @@ flowchart LR
 | Device resolution | Direct NIC name | Registry GUID lookup |
 | Privileges | `CAP_NET_RAW` or root | Administrator |
 | Promiscuous mode | Supported | Enabled by default |
+
+### Couche de capture (OSI)
+
+La capture s’effectue au **layer 2 (Data Link / Ethernet)** : le noyau (Linux) ou Npcap (Windows) livre des **trames Ethernet brutes** (frame entière). Le parsing (dpkt) décode ensuite :
+
+| Couche | Rôle |
+|--------|------|
+| **L2 (Ethernet)** | Réception : `AF_PACKET` / `pcap_open_live` → trames brutes. |
+| **L3 (IP)** | Extraction : IP source/dest, TTL, protocole ; paquets non-IP (ARP, etc.) sont ignorés. |
+| **L4 (TCP/UDP)** | Extraction : ports, flags TCP, payload pour détection de service (ex. TLS SNI → HTTPS). |
+
+En résumé : **capture au L2**, **analyse L3 + L4**. Les paquets sans en-tête IP (`eth.data` non-IP) sont rejetés dans `parse_raw_packet` et ne figurent pas dans Bronze/Silver/Gold ni dans le dashboard.
 
 ---
 
@@ -336,33 +399,117 @@ Powered by `_coerce_schema()` — applied at compaction and at read time via `re
 
 ---
 
+## Exploitation et interprétation des données
+
+Les données capturées (Bronze NDJSON, Silver/Gold Parquet, `_live.json`) peuvent être exploitées au-delà du dashboard actuel. Pistes concrètes pour ne pas sous-utiliser la capture :
+
+### Alertes et seuils
+
+- **Drop rate** : alerter (email, webhook, log structuré) si `capture_health.drop_rate_pct` dépasse un seuil (ex. > 2 %).
+- **Volume anormal** : comparer `total_packets` / `total_bytes` par fenêtre (5/10/30/60 min) à une baseline ou à la même fenêtre la veille ; alerte si écart > X %.
+- **Nouveaux top IPs** : détecter une IP source ou destination qui apparaît dans `top_src_ips` / `top_dst_ips` sans être dans une liste connue (blanc / gris) → possible nouveau service ou anomalie.
+
+### Baselines et profils
+
+- **Profil “habituel”** : sur Silver/Gold (ou agrégats `_live.json`), calculer par heure/jour de la semaine : volume moyen, top 10 IPs, top 10 ports, répartition proto. Stocker en JSON ou Parquet.
+- **Déviation** : en temps réel ou en batch, comparer la fenêtre courante au profil ; afficher dans l’UI un indicateur “proche de la baseline” / “écart fort”.
+
+### Corrélations et contexte
+
+- **Conversations** : grouper les paquets par (src_ip, dst_ip, src_port, dst_port, protocol) pour identifier des “flows” ; durée, nombre de paquets, octets. Utile pour “qui a parlé à qui, combien de temps”.
+- **Services ↔ IPs** : croiser `service_info` (HTTPS, DNS, etc.) avec `top_src_ips` / `top_dst_ips` pour étiqueter “cette IP = surtout HTTPS” ou “cette IP = DNS récursif”.
+- **Subnets** : utiliser `src_network` (Silver/Gold) pour rapports par segment (ex. 192.168.1.0/24 vs 10.0.0.0/24) ; comparer volumes et top ports par subnet.
+
+### Export et reporting
+
+- **Export CSV/Excel** : partir de `_live.json` (recent_packets) ou de Silver Parquet pour générer des rapports “trafic des N dernières heures” (par IP, port, service) et les partager.
+- **Rapports périodiques** : job (cron / Task Scheduler) qui lit Silver ou Gold, agrège par jour/semaine, produit un résumé (volume, top IPs, top ports, évolution) en HTML/PDF ou en JSON pour un outil BI.
+- **API d’agrégats** : endpoint REST (ex. `/api/stats?window=1h`) qui lit `_live.json` ou Silver et renvoie des agrégats (protocols, top IPs, port_stats) pour intégration dans un autre dashboard ou outil.
+
+### Détection d’anomalies (idées avancées)
+
+- **Volume par (IP, port)** : seuil dynamique (moyenne + N × écart-type sur des fenêtres passées) ; alerte si dépassement.
+- **Ports éphémères** : repérer des connexions depuis des ports hauts (> 32768) vers des services (443, 80) en grand nombre → possible scan ou bot.
+- **TTL** : distribution des TTL (déjà dans Silver) ; une forte proportion de TTL très bas ou très homogène peut indiquer un type de trafic (ex. traceroute, certains C2).
+
+### Réutilisation des fichiers existants
+
+| Donnée | Fichier / source | Idée d’exploitation |
+|--------|-------------------|---------------------|
+| Paquets récents | `_live.json` → `recent_packets` | Export, recherche full-text, corrélation avec un flow. |
+| Agrégats temps réel | `_live.json` → protocols, top_src_ips, port_stats, protocol_windows | Alertes, comparaison fenêtre courante vs précédente. |
+| Santé capture | `_live.json` → `capture_health` | Alerting drop rate, graphique tendance. |
+| Historique structuré | Silver / Gold Parquet | BI (Metabase, Power BI, DuckDB), ML (features par heure/IP), conformité (qui a communiqué quand). |
+
+En ajoutant des **jobs légers** (script Python ou petit service) qui lisent `_live.json` et Silver/Gold, on peut implémenter alertes, baselines et exports sans modifier le cœur capture/pipeline.
+
+---
+
 ## Project Structure
 
+**EN** — Package root is `pktlive/`; all application code lives under `src/network_interface/`. Entry points: `run.py` (capture + TUI) and `src.network_interface.web.web_main` (web UI).
+
+**FR** — Racine du projet : `pktlive/` ; tout le code applicatif est sous `src/network_interface/`. Points d’entrée : `run.py` (capture + TUI) et `src.network_interface.web.web_main` (UI web).
+
 ```
-networkInterface/
-├── capture_agent.py          # Capture engine + DataSinkProcess (Bronze/Silver/Gold)
-├── streaming_pipeline.py     # Silver/Gold transforms, stores, compaction, retention
-├── bronze_store.py           # Bronze layer (partition, manifest, rotation, quarantine)
-├── structured_log.py         # JSON structured logging (Splunk/ELK/Loki ready)
-├── pipeline_metrics.py       # Real-time metrics (_metrics.json)
-├── dashboard.py              # htop-style TUI (Live/Ports/Stats views)
-├── run.py                    # Unified launcher (capture + dashboard)
-├── databricks_pipeline.py    # Local Parquet reader + Cloud Spark pipeline
+pktlive/
+├── run.py                    # Unified launcher (capture + pipeline + optional TUI)
 ├── requirements.txt
 ├── pytest.ini
+├── setup.ps1                 # Windows bootstrap
+├── setup.sh                  # Linux bootstrap
 │
-├── tests/                    # 62 tests, <1s execution
+├── src/
+│   ├── __init__.py
+│   └── network_interface/
+│       ├── __init__.py
+│       ├── _paths.py         # Project root, bronze/silver/gold paths
+│       ├── run_main.py       # Main process: capture thread, parser pool, DataSink spawn
+│       │
+│       ├── capture/          # Capture engine + DataSink process (Bronze/Silver/Gold)
+│       │   ├── capture_agent.py   # NIC → queue → DataSink; Npcap/AF_PACKET backends
+│       │   └── network_collector.py
+│       │
+│       ├── monitoring/       # Observability
+│       │   ├── structured_log.py   # JSON logging (Splunk/ELK/Loki ready)
+│       │   ├── pipeline_metrics.py  # Real-time _metrics.json
+│       │   └── dashboard.py        # htop-style TUI (Live/Ports/Stats)
+│       │
+│       ├── storage/          # Medallion layers
+│       │   ├── bronze_store.py     # Bronze NDJSON (partition, manifest, quarantine)
+│       │   ├── streaming_pipeline.py  # Silver/Gold transforms, compaction, retention
+│       │   └── medallion_core.py   # Schema / Parquet helpers
+│       │
+│       ├── web/              # FastAPI dashboard
+│       │   ├── web_main.py   # Entry: start capture if needed, serve UI on :8000
+│       │   ├── app.py        # API + routes, static/templates
+│       │   ├── static/       # app.js, styles.css
+│       │   └── templates/    # dashboard.html, fragments (live, ports, stats, pipeline)
+│       │
+│       └── cloud/            # Optional cloud pipeline
+│           └── databricks_pipeline.py  # Local Parquet reader + Spark/Delta
+│
+├── tests/                    # 104 tests, <2s, pytest --cov=src
+│   ├── conftest.py
 │   ├── test_silver_transform.py
 │   ├── test_stores.py
 │   ├── test_bronze_store.py
 │   ├── test_packet_parser.py
+│   ├── test_packet_record.py
 │   ├── test_pipeline_integration.py
 │   ├── test_compaction_retention.py
-│   └── test_structured_logging.py
+│   ├── test_structured_logging.py
+│   ├── test_capture_backends.py
+│   ├── test_web_ui.py
+│   ├── test_fuzz_silver.py
+│   ├── test_resilience.py
+│   └── test_performance_smoke.py
 │
-├── setup.ps1                 # Windows bootstrap
-├── setup.sh                  # Linux bootstrap
-├── run.cmd                   # Windows shortcut
+├── scripts/
+│   ├── run.py, run.cmd, run.ps1, run   # Launcher shortcuts
+│   └── bundle.py                       # Build/bundle helpers
+│
+├── docs/                     # Additional documentation
 │
 ├── bronze/                   # [generated] Raw packet NDJSON
 │   ├── data/dt=YYYY-MM-DD/hr=HH/*.ndjson
@@ -377,7 +524,8 @@ networkInterface/
 │   └── event_date=YYYY-MM-DD/*.parquet
 │
 ├── _live.json                # [generated] Dashboard snapshot (300ms refresh)
-└── _metrics.json             # [generated] Pipeline health metrics (2s refresh)
+├── _metrics.json             # [generated] Pipeline health metrics (2s refresh)
+└── _metrics_capture.json     # [generated] Capture-side metrics
 ```
 
 ---
@@ -590,12 +738,15 @@ sequenceDiagram
 
 ---
 
-## Tests
+## Tests (detailed) / Tests (détail)
 
-62 tests covering all pipeline components. Execution time: **< 1 second**.
+**EN** — 104 tests covering pipeline, storage, parsing, logging, and integration. Execution **< 2 s**. See [Test coverage](#test-coverage--couverture-des-tests) for coverage report and `pytest --cov=src`.
+
+**FR** — 104 tests couvrant pipeline, stockage, parsing, logging et intégration. Exécution **< 2 s**. Voir [Couverture des tests](#test-coverage--couverture-des-tests) pour le rapport et `pytest --cov=src`.
 
 ```bash
 python -m pytest tests/ -v
+python -m pytest tests/ --cov=src --cov-report=term-missing -v   # with coverage / avec couverture
 ```
 
 | Test File | Tests | Coverage |
@@ -606,10 +757,10 @@ python -m pytest tests/ -v
 | `test_packet_parser.py` | 7 | dpkt TCP/UDP parsing, flags, edge cases |
 | `test_compaction_retention.py` | 8 | Parquet compaction, schema evolution, retention |
 | `test_structured_logging.py` | 8 | JSON formatter, correlation ID, metrics |
-| `test_pipeline_integration.py` | 2 | End-to-end Bronze -> Silver -> Gold -> Snapshot |
+| `test_pipeline_integration.py` | 2 | End-to-end Bronze → Silver → Gold → Snapshot |
 
 ---
 
-## License
 
-Internal project — not distributed.
+
+
