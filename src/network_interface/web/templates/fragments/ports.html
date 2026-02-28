@@ -1,0 +1,47 @@
+{% set port_stats = snap.get("port_stats", []) %}
+<section class="panel" hx-get="/fragment/ports" hx-trigger="every 1s" hx-target="this" hx-swap="outerHTML">
+  <div class="ni-page-intro">
+    <p class="ni-page-purpose">Ports — Traffic per destination port and protocol. / Trafic par port destination et protocole.</p>
+    <p class="ni-legend-source">Data: <code>_live.json</code> (port_stats)</p>
+  </div>
+  <div class="panel-header">
+    <h2>Ports</h2>
+  </div>
+  <p class="ni-source">Data: <code>_live.json</code></p>
+  <div class="ni-data-legend">
+    <dl>
+      <dt>Represents</dt>
+      <dd>Traffic per destination port: port number, protocol (TCP/UDP), packet count, and total bytes.</dd>
+      <dt>Use it</dt>
+      <dd>Identify which ports (services) receive the most traffic; e.g. 443 = HTTPS, 80 = HTTP. Sort by packets or bytes to see dominant services.</dd>
+      <dt>Calculation</dt>
+      <dd><code>port_stats</code>: from captured packets, group by <code>dst_port</code> + <code>protocol</code>; sum packets and <code>length</code> (bytes).</dd>
+    </dl>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Port</th>
+          <th>Proto</th>
+          <th>Packets</th>
+          <th>Bytes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in port_stats %}
+        <tr>
+          <td class="num">{{ e.get("port") }}</td>
+          <td>{{ e.get("protocol") }}</td>
+          <td class="num">{{ e.get("packets", 0) }}</td>
+          <td class="num">{{ e.get("bytes", 0) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if not port_stats %}
+    <div class="empty-state">No port statistics yet.</div>
+    {% endif %}
+  </div>
+</section>
+

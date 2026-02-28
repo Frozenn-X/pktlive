@@ -1,0 +1,34 @@
+{% set recent = snap.get("recent_packets", []) %}
+<tbody
+  id="live-tbody"
+  hx-get="/fragment/live-body"
+  hx-trigger="every 500ms"
+  hx-target="#live-tbody"
+  hx-swap="innerHTML"
+  hx-include="#live-filters"
+>
+  {% for pkt in recent %}
+  <tr>
+    <td class="time-cell" data-ni-datetime="{{ pkt.get('ts', '') }}">{{ pkt.get("ts", "") }}</td>
+    <td>
+      {{ pkt.get("src_ip", "") }}{% if pkt.get("src_port") is not none %}:{{ pkt.get("src_port") }}{% endif %}
+    </td>
+    <td>
+      {{ pkt.get("dst_ip", "") }}{% if pkt.get("dst_port") is not none %}:{{ pkt.get("dst_port") }}{% endif %}
+    </td>
+    <td>{{ pkt.get("protocol", "") }}</td>
+    <td class="num">{{ pkt.get("length", 0) }}</td>
+    <td>{{ pkt.get("flags") or "" }}</td>
+    <td class="num">
+      {% if pkt.get("ttl") is not none %}{{ pkt.get("ttl") }}{% endif %}
+    </td>
+    <td>{{ pkt.get("service_info") or "" }}</td>
+  </tr>
+  {% endfor %}
+  {% if not recent %}
+  <tr>
+    <td colspan="8" class="empty-row">Waiting for _live.json … start the capture agent.</td>
+  </tr>
+  {% endif %}
+</tbody>
+

@@ -39,8 +39,8 @@ CAPTURE_LOG = "_capture.log"
 
 IS_WIN = sys.platform == "win32"
 
-# __file__ = .../src/network_interface/run_main.py → parents[2] = project root (folder containing src/)
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from ._paths import PROJECT_ROOT
+
 VENV_PYTHON = PROJECT_ROOT / ".venv" / ("Scripts" if IS_WIN else "bin") / ("python.exe" if IS_WIN else "python")
 
 log = logging.getLogger("run")

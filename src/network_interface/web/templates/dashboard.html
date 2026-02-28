@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>networkInterface — Web UI</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="ni-header">
+      <h1>networkInterface</h1>
+      <span class="ni-subtitle">Live · Stats · Ports · Pipeline</span>
+      <span class="ni-header-legend" title="Drop rate status">
+        <span class="ni-legend-chip"><span class="ni-dot indicator-green"></span><span class="ni-legend-label">OK</span></span>
+        <span class="ni-legend-chip"><span class="ni-dot indicator-orange"></span><span class="ni-legend-label">Warn</span></span>
+        <span class="ni-legend-chip"><span class="ni-dot indicator-red"></span><span class="ni-legend-label">Crit</span></span>
+      </span>
+      <span id="health-badge" class="ni-health-badge" title="Capture health (drop rate)">—</span>
+    </header>
+
+    <nav class="ni-tabs">
+      <button class="ni-tab" hx-get="/fragment/live" hx-target="#view" hx-trigger="click, load">Live</button>
+      <button class="ni-tab" hx-get="/fragment/stats" hx-target="#view" hx-trigger="click">Stats</button>
+      <button class="ni-tab" hx-get="/fragment/ports" hx-target="#view" hx-trigger="click">Ports</button>
+      <button class="ni-tab" hx-get="/fragment/pipeline" hx-target="#view" hx-trigger="click">Pipeline</button>
+    </nav>
+
+    <main id="view" class="ni-view">
+      <!-- Initial content loaded via htmx from /fragment/live -->
+    </main>
+  </body>
+</html>
+

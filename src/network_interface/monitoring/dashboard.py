@@ -37,16 +37,9 @@ else:
     import tty
     import termios
 
-def _project_root() -> Path:
-    root = os.environ.get("NI_PROJECT_ROOT")
-    if root:
-        p = Path(root).resolve()
-        if p.is_dir():
-            return p
-    return Path(__file__).resolve().parents[4]
+from .._paths import get_project_root
 
-
-_PROJECT_ROOT = _project_root()
+_PROJECT_ROOT = get_project_root()
 LIVE_PATH = _PROJECT_ROOT / "_live.json"
 
 WELL_KNOWN_PORTS: dict[int, str] = {

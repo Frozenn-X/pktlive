@@ -28,6 +28,7 @@ wheels/
 htmlcov/
 .tox/
 .nox/
+.hypothesis/
 
 # ── IDE / Editor ──
 .idea/

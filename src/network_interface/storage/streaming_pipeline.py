@@ -45,18 +45,10 @@ logger = logging.getLogger("streaming_pipeline")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration — project root so capture and web share _live.json
-# Prefer NI_PROJECT_ROOT (set by run_main) so subprocess and launcher use the same path.
 # ─────────────────────────────────────────────────────────────────────────────
-def _project_root() -> Path:
-    root = os.environ.get("NI_PROJECT_ROOT")
-    if root:
-        p = Path(root).resolve()
-        if p.is_dir():
-            return p
-    return Path(__file__).resolve().parents[4]
+from .._paths import get_project_root
 
-
-_PROJECT_ROOT = _project_root()
+_PROJECT_ROOT = get_project_root()
 SILVER_DIR: str = str(_PROJECT_ROOT / "silver")
 GOLD_DIR: str = str(_PROJECT_ROOT / "gold")
 LIVE_SNAPSHOT_PATH: str = str(_PROJECT_ROOT / "_live.json")

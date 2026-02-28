@@ -1,0 +1,91 @@
+<section class="panel" hx-get="/fragment/pipeline" hx-trigger="every 1s" hx-target="this" hx-swap="outerHTML">
+  {% set health = live.get("capture_health", {}) %}
+  {% set drop_rate = health.get("drop_rate_pct") or 0 %}
+  {% if drop_rate <= 0.5 %}{% set status = "green" %}
+  {% elif drop_rate <= 2.0 %}{% set status = "yellow" %}
+  {% else %}{% set status = "red" %}{% endif %}
+  <div class="ni-page-intro">
+    <p class="ni-page-purpose">Pipeline &amp; Capture Health — Monitor capture and processing. / Surveiller la capture et le traitement.</p>
+    <div class="ni-page-legend">
+      <div class="ni-legend-chips" aria-label="Drop rate status">
+        <span class="ni-legend-chip"><span class="ni-dot indicator-green" aria-hidden="true"></span> Green &lt;0.5%</span>
+        <span class="ni-legend-chip"><span class="ni-dot indicator-orange" aria-hidden="true"></span> Orange 0.5–2%</span>
+        <span class="ni-legend-chip"><span class="ni-dot indicator-red" aria-hidden="true"></span> Red &gt;2%</span>
+      </div>
+    </div>
+    <p class="ni-legend-source">Data: <code>_live.json</code>, <code>_metrics_capture.json</code>, <code>_metrics.json</code></p>
+  </div>
+  <div class="panel-header">
+    <h2>Pipeline &amp; Capture Health</h2>
+    <span class="ni-health-badge status-{{ status }}" title="Drop rate: {{ drop_rate }}%">{% if status == "green" %}●{% elif status == "yellow" %}◆{% else %}■{% endif %}</span>
+  </div>
+  <p class="ni-source">Data: <code>_live.json</code>, <code>_metrics_capture.json</code>, <code>_metrics.json</code></p>
+  <div class="stats-grid">
+    <div>
+      <h3>Capture health</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>OS-level packets received vs dropped, app-queue dropped count, and drop rate % (green &lt;0.5%, orange 0.5–2%, red &gt;2%).</dd>
+          <dt>Use it</dt>
+          <dd>Monitor capture loss: if drop rate is high, the OS or app is losing packets; reduce load or tune buffer/threads.</dd>
+          <dt>Calculation</dt>
+          <dd>From <code>_live.json</code> <code>capture_health</code>: <code>os_recv</code>/<code>os_drop</code> from OS stats; <code>drop_rate_pct</code> = 100 × os_drop / (os_recv + os_drop) (or similar).</dd>
+        </dl>
+      </div>
+      <table>
+        <tbody>
+          <tr><th>OS recv</th><td class="num">{{ health.get("os_recv", 0) }}</td></tr>
+          <tr><th>OS drop</th><td class="num">{{ health.get("os_drop", 0) }}</td></tr>
+          <tr><th>Queue dropped</th><td class="num">{{ health.get("app_dropped", 0) }}</td></tr>
+          <tr><th>Drop rate %</th><td class="num ni-indicator-{{ status }}">{{ health.get("drop_rate_pct", 0) }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Capture metrics (_metrics_capture.json)</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Capture process counters: packets captured, parsed, queued, dropped by the capture agent.</dd>
+          <dt>Use it</dt>
+          <dd>See throughput and where packets are lost (capture vs queue); compare with Capture health.</dd>
+          <dt>Calculation</dt>
+          <dd>From <code>_metrics_capture.json</code> <code>counters</code>: cumulative counts emitted by the capture process.</dd>
+        </dl>
+      </div>
+      {% set cc = cap.get("counters", {}) %}
+      <table>
+        <tbody>
+          <tr><th>Captured</th><td class="num">{{ cc.get("captured", 0) }}</td></tr>
+          <tr><th>Parsed</th><td class="num">{{ cc.get("parsed", 0) }}</td></tr>
+          <tr><th>Queued</th><td class="num">{{ cc.get("queued", 0) }}</td></tr>
+          <tr><th>Dropped</th><td class="num">{{ cc.get("dropped", 0) }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Data sink metrics (_metrics.json)</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Downstream pipeline counters: processed records, silver writes, gold flushes, snapshot flushes.</dd>
+          <dt>Use it</dt>
+          <dd>Confirm that data is being written (silver, gold, snapshot); monitor processing throughput.</dd>
+          <dt>Calculation</dt>
+          <dd>From <code>_metrics.json</code> <code>counters</code>: cumulative counts from the sink/pipeline writer.</dd>
+        </dl>
+      </div>
+      {% set sc = sink.get("counters", {}) %}
+      <table>
+        <tbody>
+          <tr><th>Processed</th><td class="num">{{ sc.get("processed", 0) }}</td></tr>
+          <tr><th>Silver records</th><td class="num">{{ sc.get("silver_records", 0) }}</td></tr>
+          <tr><th>Gold flushes</th><td class="num">{{ sc.get("gold_flushes", 0) }}</td></tr>
+          <tr><th>Snapshot flushes</th><td class="num">{{ sc.get("snapshot_flushes", 0) }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+

@@ -1,0 +1,260 @@
+<section class="panel" hx-get="/fragment/stats" hx-trigger="every 1s" hx-target="this" hx-swap="outerHTML">
+  <div class="ni-page-intro">
+    <p class="ni-page-purpose">Stats — Summaries and time-window trends (5/10/30/60 min). / Résumés et tendances par fenêtre.</p>
+    <p class="ni-legend-source">Data: <code>_live.json</code></p>
+  </div>
+  <div class="panel-header">
+    <h2>Stats</h2>
+  </div>
+  <p class="ni-source">Data: <code>_live.json</code></p>
+  <div class="stats-grid">
+    <div>
+      <h3>Protocols</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Packet count per layer-4 protocol (TCP, UDP, ICMP, etc.) in the current snapshot.</dd>
+          <dt>Use it</dt>
+          <dd>See which protocols dominate; compare with time-window charts below to spot shifts.</dd>
+          <dt>Calculation</dt>
+          <dd>Aggregated from <code>recent_packets</code> (and snapshot totals): group by <code>protocol</code>, sum packets.</dd>
+        </dl>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Proto</th><th>Packets</th></tr>
+        </thead>
+        <tbody>
+          {% for p in snap.get("protocols", []) %}
+          <tr>
+            <td>{{ p.get("name") }}</td>
+            <td class="num">{{ p.get("packets", 0) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Top src IPs</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Source IPs that sent the most packets in the snapshot.</dd>
+          <dt>Use it</dt>
+          <dd>Identify the busiest senders (hosts or devices) on the network.</dd>
+          <dt>Calculation</dt>
+          <dd>Aggregated from packets: group by <code>src_ip</code>, count packets; top N kept.</dd>
+        </dl>
+      </div>
+      <table>
+        <thead>
+          <tr><th>IP</th><th>Packets</th></tr>
+        </thead>
+        <tbody>
+          {% for e in snap.get("top_src_ips", []) %}
+          <tr>
+            <td>{{ e.get("ip") }}</td>
+            <td class="num">{{ e.get("packets", 0) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Top dst IPs</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Destination IPs that received the most packets.</dd>
+          <dt>Use it</dt>
+          <dd>See which hosts or services are the main traffic targets (e.g. servers, gateways).</dd>
+          <dt>Calculation</dt>
+          <dd>Group by <code>dst_ip</code>, count packets; top N kept.</dd>
+        </dl>
+      </div>
+      <table>
+        <thead>
+          <tr><th>IP</th><th>Packets</th></tr>
+        </thead>
+        <tbody>
+          {% for e in snap.get("top_dst_ips", []) %}
+          <tr>
+            <td>{{ e.get("ip") }}</td>
+            <td class="num">{{ e.get("packets", 0) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Subnets (/24)</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Traffic volume per /24 subnet (e.g. 192.168.1.0/24); source subnet from packet.</dd>
+          <dt>Use it</dt>
+          <dd>See which network segments generate the most traffic; useful for LAN vs. DMZ view.</dd>
+          <dt>Calculation</dt>
+          <dd>From packet <code>src_network</code> or derived from <code>src_ip</code> (/24); group by subnet, count packets.</dd>
+        </dl>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Subnet</th><th>Packets</th></tr>
+        </thead>
+        <tbody>
+          {% for e in snap.get("top_subnets", []) %}
+          <tr>
+            <td>{{ e.get("subnet") }}</td>
+            <td class="num">{{ e.get("packets", 0) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Services détectés</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Inferred service name (e.g. HTTPS, DNS) with packet and byte counts.</dd>
+          <dt>Use it</dt>
+          <dd>Identify which application-layer services are in use; compare volumes.</dd>
+          <dt>Calculation</dt>
+          <dd>From port + protocol + optional TLS SNI; grouped by <code>service_info</code>, sum packets and bytes.</dd>
+        </dl>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Service</th><th>Packets</th><th>Bytes</th></tr>
+        </thead>
+        <tbody>
+          {% for s in snap.get("services", []) %}
+          <tr>
+            <td>{{ s.get("name") }}</td>
+            <td class="num">{{ s.get("packets", 0) }}</td>
+            <td class="num">{{ s.get("bytes", 0) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-panel">
+      <h3>Volume par protocole (5 / 10 / 30 / 60 min)</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Bytes per protocol (TCP, UDP, etc.) over rolling windows: 5m, 10m, 30m, 60m.</dd>
+          <dt>Use it</dt>
+          <dd>Compare protocol mix across time; see if traffic shifts (e.g. more UDP in last 5m).</dd>
+          <dt>Calculation</dt>
+          <dd><code>protocol_windows</code>: for each window, sum packet <code>length</code> by <code>protocol</code> for packets in that window.</dd>
+        </dl>
+      </div>
+      {% set proto_windows = snap.get("protocol_windows", {}) %}
+      {% for window in ["5m", "10m", "30m", "60m"] %}
+        {% set rows = proto_windows.get(window, []) %}
+        <h4>{{ window }}</h4>
+        {% if rows %}
+          {% set bytes_list = rows | map(attribute="bytes") | list %}
+          {% set max_bytes = bytes_list | max_or_default %}
+          <div class="chart-rows">
+            {% for row in rows %}
+            {% set b = row.bytes | default(0) %}
+            {% set width = (b * 100 / max_bytes) if max_bytes > 0 else 0 %}
+            <div class="chart-row">
+              <span class="chart-label">{{ row.name }}</span>
+              <div class="chart-bar">
+                <div class="chart-bar-fill" style="width: {{ '%.1f' % width }}%;"></div>
+              </div>
+              <span class="chart-value">{{ b }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="chart-empty">No data</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="chart-panel">
+      <h3>Volume par subnet (5 / 10 / 30 / 60 min)</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Bytes per /24 subnet over rolling time windows (5m, 10m, 30m, 60m).</dd>
+          <dt>Use it</dt>
+          <dd>See which subnets are most active in each window; spot temporal changes.</dd>
+          <dt>Calculation</dt>
+          <dd><code>subnet_windows</code>: sum packet <code>length</code> by source subnet for packets in each window.</dd>
+        </dl>
+      </div>
+      {% set subnet_windows = snap.get("subnet_windows", {}) %}
+      {% for window in ["5m", "10m", "30m", "60m"] %}
+        {% set rows = subnet_windows.get(window, []) %}
+        <h4>{{ window }}</h4>
+        {% if rows %}
+          {% set bytes_list = rows | map(attribute="bytes") | list %}
+          {% set max_bytes = bytes_list | max_or_default %}
+          <div class="chart-rows">
+            {% for row in rows %}
+            {% set b = row.bytes | default(0) %}
+            {% set width = (b * 100 / max_bytes) if max_bytes > 0 else 0 %}
+            <div class="chart-row">
+              <span class="chart-label">{{ row.name }}</span>
+              <div class="chart-bar">
+                <div class="chart-bar-fill" style="width: {{ '%.1f' % width }}%;"></div>
+              </div>
+              <span class="chart-value">{{ b }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="chart-empty">No data</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="chart-panel">
+      <h3>Services utilisés (volume sur 5 / 10 / 30 / 60 min)</h3>
+      <div class="ni-data-legend">
+        <dl>
+          <dt>Represents</dt>
+          <dd>Bytes per detected service (e.g. HTTPS, DNS) over 5/10/30/60 min windows.</dd>
+          <dt>Use it</dt>
+          <dd>See which services dominate in each window; identify usage patterns over time.</dd>
+          <dt>Calculation</dt>
+          <dd><code>service_windows</code>: sum <code>length</code> by <code>service_info</code> for packets in each window.</dd>
+        </dl>
+      </div>
+      {% set service_windows = snap.get("service_windows", {}) %}
+      {% for window in ["5m", "10m", "30m", "60m"] %}
+        {% set rows = service_windows.get(window, []) %}
+        <h4>{{ window }}</h4>
+        {% if rows %}
+          {% set bytes_list = rows | map(attribute="bytes") | list %}
+          {% set max_bytes = bytes_list | max_or_default %}
+          <div class="chart-rows">
+            {% for row in rows %}
+            {% set b = row.bytes | default(0) %}
+            {% set width = (b * 100 / max_bytes) if max_bytes > 0 else 0 %}
+            <div class="chart-row">
+              <span class="chart-label">{{ row.name }}</span>
+              <div class="chart-bar">
+                <div class="chart-bar-fill" style="width: {{ '%.1f' % width }}%;"></div>
+              </div>
+              <span class="chart-value">{{ b }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="chart-empty">No data</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+

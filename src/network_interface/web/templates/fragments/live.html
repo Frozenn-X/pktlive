@@ -1,0 +1,68 @@
+<section class="panel">
+  <div class="ni-page-intro">
+    <p class="ni-page-purpose">Live packets — Last packets seen by the capture in near real time. / Derniers paquets vus par la capture en quasi temps réel.</p>
+    <p class="ni-legend-source">Data: <code>_live.json</code></p>
+  </div>
+  <div class="panel-header">
+    <h2>Live packets</h2>
+    <span class="panel-meta">
+      total: {{ snap.get("total_packets", 0) }} · bytes: {{ snap.get("total_bytes", 0) }}
+      {% if snap.get("snapshot_at") %}
+      · <span class="ni-snapshot-age" title="Last snapshot write">updated: {{ snap.get("snapshot_at") }}</span>
+      {% endif %}
+    </span>
+  </div>
+  <div class="ni-data-legend">
+    <dl>
+      <dt>Represents</dt>
+      <dd>Each row is one packet: source IP:port → destination IP:port, protocol (TCP/UDP/ICMP), length (bytes), flags, TTL, and inferred service (e.g. HTTPS from TLS SNI).</dd>
+      <dt>Use it</dt>
+      <dd>Filter by search (q), protocol, src subnet, port range, or port category. Sort by newest or by size. Check “Anonymize private IPs” to mask 10.x, 172.16–31.x, 192.168.x for sharing. Table refreshes every 0.5 s.</dd>
+      <dt>Calculation</dt>
+      <dd>Raw packets from the capture; last N kept in memory and written to <code>_live.json</code> (recent_packets). Time = packet timestamp; service from port + optional TLS SNI.</dd>
+    </dl>
+  </div>
+  <form id="live-filters" class="live-filters" autocomplete="off" method="get" action="">
+    <input type="search" name="q" placeholder="IP, port, service…" />
+    <select name="proto">
+      <option value="">Proto: Tous</option>
+      <option value="TCP">TCP</option>
+      <option value="UDP">UDP</option>
+      <option value="ICMP">ICMP</option>
+    </select>
+    <input type="text" name="src_subnet" placeholder="Src subnet (e.g. 192.168.1)" size="14" />
+    <input type="number" name="dst_port_min" placeholder="Port min" min="0" max="65535" size="6" />
+    <input type="number" name="dst_port_max" placeholder="Port max" min="0" max="65535" size="6" />
+    <select name="port_category">
+      <option value="">Port category: all</option>
+      <option value="well_known">well_known</option>
+      <option value="user_app">user_app</option>
+      <option value="os_noise">os_noise</option>
+      <option value="ephemeral">ephemeral</option>
+      <option value="unknown">unknown</option>
+    </select>
+    <select name="sort">
+      <option value="ts_desc">Tri: Plus récents</option>
+      <option value="len_desc">Tri: Plus volumineux</option>
+    </select>
+    <!-- <label class="live-filter-anon" title=s"Mask private IPs only (10.x, 172.16–31.x, 192.168.x)"><input type="checkbox" name="anonymize" value="1" /> Anonymize private IPs / Anonymiser les IP privées</label> -->
+  </form>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Source</th>
+          <th>Destination</th>
+          <th>Proto</th>
+          <th>Len</th>
+          <th>Flags</th>
+          <th>TTL</th>
+          <th>Service</th>
+        </tr>
+      </thead>
+      {% include "fragments/live_rows.html" %}
+    </table>
+  </div>
+</section>
+

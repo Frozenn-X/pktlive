@@ -63,8 +63,9 @@ from ..monitoring.pipeline_metrics import PipelineMetrics
 _QUEUE_MAXSIZE: int = 200_000
 _PARSER_WORKERS: int = max(2, (os.cpu_count() or 4) - 2)
 _SNAP_LEN: int = 65535
-# __file__ = .../src/network_interface/capture/capture_agent.py → parents[4] = project root
-_PROJECT_ROOT = Path(__file__).resolve().parents[4]
+from .._paths import get_project_root
+
+_PROJECT_ROOT = get_project_root()
 _BRONZE_DIR: str = str(_PROJECT_ROOT / "bronze")
 _AGENT_ID: str = uuid.uuid4().hex[:12]
 
