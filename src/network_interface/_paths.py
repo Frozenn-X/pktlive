@@ -1,9 +1,11 @@
 """
-Single source of truth for project root. No magic depth (parents[N]).
+Single source of truth for project root and data paths. No magic depth (parents[N]).
 
 Resolves the directory that contains run.py and src/ so all components
-(capture, pipeline, web, dashboard) use the same paths for _live.json,
-bronze/, silver/, gold/, etc. Prefers NI_PROJECT_ROOT when set by the launcher.
+(capture, pipeline, web, dashboard) use the same paths. _live.json and metrics
+(_metrics.json, _metrics_capture.json) remain at project root; Bronze, Silver,
+and Gold storage live under data/ (data/bronze/, data/silver/, data/gold/).
+Prefers NI_PROJECT_ROOT when set by the launcher.
 """
 
 from __future__ import annotations
@@ -44,5 +46,9 @@ def _is_project_root(path: Path) -> bool:
     return path.is_dir() and all((path / m).exists() for m in _MARKERS)
 
 
-# Convenience for imports: from network_interface._paths import PROJECT_ROOT
+# Convenience for imports: from network_interface._paths import PROJECT_ROOT, DATA_DIR, ...
 PROJECT_ROOT = get_project_root()
+DATA_DIR: Path = PROJECT_ROOT / "data"
+BRONZE_DIR: Path = DATA_DIR / "bronze"
+SILVER_DIR: Path = DATA_DIR / "silver"
+GOLD_DIR: Path = DATA_DIR / "gold"

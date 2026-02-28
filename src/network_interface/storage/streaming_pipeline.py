@@ -44,14 +44,13 @@ from .medallion_core import GOLD_SCHEMA, SILVER_SCHEMA, PortCategory, silver_tra
 logger = logging.getLogger("streaming_pipeline")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Configuration — project root so capture and web share _live.json
+# Configuration — medallion dirs under data/; _live.json at project root
 # ─────────────────────────────────────────────────────────────────────────────
-from .._paths import get_project_root
+from .._paths import PROJECT_ROOT, SILVER_DIR as _SILVER_DIR_PATH, GOLD_DIR as _GOLD_DIR_PATH
 
-_PROJECT_ROOT = get_project_root()
-SILVER_DIR: str = str(_PROJECT_ROOT / "silver")
-GOLD_DIR: str = str(_PROJECT_ROOT / "gold")
-LIVE_SNAPSHOT_PATH: str = str(_PROJECT_ROOT / "_live.json")
+SILVER_DIR: str = str(_SILVER_DIR_PATH)
+GOLD_DIR: str = str(_GOLD_DIR_PATH)
+LIVE_SNAPSHOT_PATH: str = str(PROJECT_ROOT / "_live.json")
 
 _SILVER_FLUSH_RECORDS: int = 500
 _SILVER_FLUSH_SEC: float = 0.5
