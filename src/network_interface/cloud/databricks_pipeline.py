@@ -17,11 +17,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .._paths import SILVER_DIR, GOLD_DIR
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
-SILVER_LOCAL_PATH: str = "silver"
-GOLD_LOCAL_PATH: str = "gold"
+SILVER_LOCAL_PATH: str = str(SILVER_DIR)
+GOLD_LOCAL_PATH: str = str(GOLD_DIR)
 
 BRONZE_CLOUD_PATH: str = "/mnt/network-analytics/bronze/data"
 SILVER_TABLE: str = "network_analytics.silver.packet_events"

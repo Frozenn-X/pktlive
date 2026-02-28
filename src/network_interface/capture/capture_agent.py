@@ -16,9 +16,9 @@ Architecture
                │
                ▼
          DataSinkProcess (dedicated OS process, bypasses GIL)
-               ├── BronzeStore  ──▶  ./bronze/data/dt=YYYY-MM-DD/hr=HH/*.ndjson
-               ├── SilverStore  ──▶  ./silver/event_date=YYYY-MM-DD/*.parquet
-               └── GoldAccum    ──▶  ./gold/event_date=YYYY-MM-DD/*.parquet
+               ├── BronzeStore  ──▶  ./data/bronze/data/dt=YYYY-MM-DD/hr=HH/*.ndjson
+               ├── SilverStore  ──▶  ./data/silver/event_date=YYYY-MM-DD/*.parquet
+               └── GoldAccum    ──▶  ./data/gold/event_date=YYYY-MM-DD/*.parquet
 """
 
 from __future__ import annotations
@@ -63,10 +63,8 @@ from ..monitoring.pipeline_metrics import PipelineMetrics
 _QUEUE_MAXSIZE: int = 200_000
 _PARSER_WORKERS: int = max(2, (os.cpu_count() or 4) - 2)
 _SNAP_LEN: int = 65535
-from .._paths import get_project_root
+from .._paths import BRONZE_DIR
 
-_PROJECT_ROOT = get_project_root()
-_BRONZE_DIR: str = str(_PROJECT_ROOT / "bronze")
 _AGENT_ID: str = uuid.uuid4().hex[:12]
 
 logger = logging.getLogger("capture_agent")
@@ -1061,7 +1059,7 @@ def main() -> None:
 
     logger.info("Network Capture Agent v2.0  (agent_id=%s)", _AGENT_ID)
 
-    bronze_cfg = BronzeConfig(root_dir=Path(_BRONZE_DIR))
+    bronze_cfg = BronzeConfig(root_dir=BRONZE_DIR)
 
     pinfo = detect_platform()
     engine = CaptureEngine(pinfo, bronze_cfg)

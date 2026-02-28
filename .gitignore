@@ -42,8 +42,7 @@ htmlcov/
 build/
 
 # ── Data / Pipeline outputs ──
-bronze/
-gold/
+data/
 *.parquet
 *.ndjson
 *.tmp

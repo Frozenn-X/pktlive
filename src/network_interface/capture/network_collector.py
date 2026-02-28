@@ -1,8 +1,10 @@
+import os
 import socket
 import struct
-import os
 import multiprocessing as mp
 from typing import NoReturn
+
+from .._paths import BRONZE_DIR
 
 # --- Configuration Haute Performance ---
 # On utilise AF_PACKET pour lire directement les trames Ethernet (Linux uniquement)
@@ -58,5 +60,5 @@ if __name__ == "__main__":
         p.start()
 
     # On lance le writer
-    writer = ctx.Process(target=batch_writer, args=(traffic_queue, "./bronze"))
+    writer = ctx.Process(target=batch_writer, args=(traffic_queue, str(BRONZE_DIR)))
     writer.start()

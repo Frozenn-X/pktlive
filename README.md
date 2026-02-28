@@ -142,9 +142,9 @@ flowchart LR
 | **4. Interface web** | `python -m src.network_interface.web.web_main` | **Pour l’UI navigateur** : démarre la capture si `_live.json` absent ou périmé, puis sert l’UI sur `http://127.0.0.1:8000`. |
 | **5. Composants seuls** | `python -m network_interface.capture.capture_agent` (capture seule) ; `python -m network_interface.monitoring.dashboard` (TUI seul, lit `_live.json`) | Pour debug ou déploiement découplé. |
 
-**EN** — Output files are written at **project root**: `_live.json`, `_metrics.json`, `_metrics_capture.json`, `bronze/`, `silver/`, `gold/`. Run as Administrator if using Npcap.
+**EN** — Output files: `_live.json`, `_metrics.json`, `_metrics_capture.json` at **project root**; medallion data under **`data/`**: `data/bronze/`, `data/silver/`, `data/gold/`. Run as Administrator if using Npcap.
 
-Fichiers produits à la **racine du projet** (répertoire qui contient `run.py` et `src/`) : `_live.json`, `_metrics.json`, `_metrics_capture.json`, dossiers `bronze/`, `silver/`, `gold/`. **`_live.json`** n’est jamais ailleurs : c’est toujours ce dossier (défini par `NI_PROJECT_ROOT` ou par le chemin du projet).
+**FR** — Fichiers produits : `_live.json`, `_metrics.json`, `_metrics_capture.json` à la **racine du projet** ; données medallion sous **`data/`** : `data/bronze/`, `data/silver/`, `data/gold/`. **`_live.json`** reste à la racine (défini par `NI_PROJECT_ROOT` ou le chemin du projet).
 
 ---
 
@@ -158,7 +158,7 @@ Fichiers produits à la **racine du projet** (répertoire qui contient `run.py` 
 | **3. Interface web** | `python -m src.network_interface.web.web_main` (après activation du venv) | Idem Windows : démarre la capture si besoin, puis UI sur `http://127.0.0.1:8000`. |
 | **4. Composants seuls** | `sudo python -m network_interface.capture.capture_agent` ; `python -m network_interface.monitoring.dashboard` | Capture en root/cap_net_raw ; TUI en user. |
 
-Même emplacement des sorties : racine du projet (`_live.json`, `_metrics*.json`, `bronze/`, `silver/`, `gold/`).
+Même logique : `_live.json` et `_metrics*.json` à la racine ; `data/bronze/`, `data/silver/`, `data/gold/` sous `data/`.
 
 ---
 
@@ -167,8 +167,8 @@ Même emplacement des sorties : racine du projet (`_live.json`, `_metrics*.json`
 Tous les chemins sont résolus par rapport à la **racine du projet** (dossier contenant `src/` et `run.py`) :
 
 - **`_live.json`** : snapshot live (capture + web lisent/écrivent ce fichier à la racine).
-- **`_metrics_capture.json`**, **`_metrics.json`** : métriques pipeline.
-- **`bronze/`**, **`silver/`, `gold/`** : données medallion.
+- **`_metrics_capture.json`**, **`_metrics.json`** : métriques pipeline, à la racine.
+- **`data/bronze/`**, **`data/silver/`**, **`data/gold/`** : données medallion (sous le répertoire `data/`).
 
 Lancer **toujours depuis la racine** (ex. `python run.py` ou `python -m src.network_interface.web.web_main`). Si une ancienne copie de `_live.json` existait ailleurs (ex. dans `src/`), la supprimer pour éviter de lire des données périmées.
 
@@ -463,7 +463,7 @@ pktlive/
 │   ├── __init__.py
 │   └── network_interface/
 │       ├── __init__.py
-│       ├── _paths.py         # Project root, bronze/silver/gold paths
+│       ├── _paths.py         # Project root, data/bronze, data/silver, data/gold
 │       ├── run_main.py       # Main process: capture thread, parser pool, DataSink spawn
 │       │
 │       ├── capture/          # Capture engine + DataSink process (Bronze/Silver/Gold)
@@ -511,17 +511,16 @@ pktlive/
 │
 ├── docs/                     # Additional documentation
 │
-├── bronze/                   # [generated] Raw packet NDJSON
-│   ├── data/dt=YYYY-MM-DD/hr=HH/*.ndjson
-│   ├── _manifest/manifest.jsonl
-│   ├── _quarantine/
-│   └── _meta/agent.json
-│
-├── silver/                   # [generated] Cleaned Parquet
-│   └── event_date=YYYY-MM-DD/*.parquet
-│
-├── gold/                     # [generated] Aggregated Parquet
-│   └── event_date=YYYY-MM-DD/*.parquet
+├── data/                     # [generated] Medallion storage root
+│   ├── bronze/               # Raw packet NDJSON
+│   │   ├── data/dt=YYYY-MM-DD/hr=HH/*.ndjson
+│   │   ├── _manifest/manifest.jsonl
+│   │   ├── _quarantine/
+│   │   └── _meta/agent.json
+│   ├── silver/               # Cleaned Parquet
+│   │   └── event_date=YYYY-MM-DD/*.parquet
+│   └── gold/                 # Aggregated Parquet
+│       └── event_date=YYYY-MM-DD/*.parquet
 │
 ├── _live.json                # [generated] Dashboard snapshot (300ms refresh)
 ├── _metrics.json             # [generated] Pipeline health metrics (2s refresh)
